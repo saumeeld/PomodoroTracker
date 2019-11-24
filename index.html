@@ -1,0 +1,143 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+
+	<title>Pomodoro Tracker</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="index.css">
+
+</head>
+
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col">
+			</div>
+			<div class="col text-center">
+				<h1 class = "timer">25:00</h1>
+			</div>
+			<div class="col">
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col">
+			</div>
+			<div class="col text-center">
+				<button type="button" class="btn btn-outline-primary" id = "start-btn"> Start </button>
+				<button type="button" class="btn btn-outline-primary" id = "stop-btn"> Stop </button>
+				<button type="button" class="btn btn-outline-primary" id = "reset-btn"> Reset </button>
+			</div>
+			<div class="col">
+			</div>
+		</div>
+	</div>
+
+	<div class = "container">
+		<div class = "row"> 
+			<div class = "col">
+				<h1 style = "display: inline; margin-right: 10px"> Tasks </h1>
+				<button type="button" class="btn btn-outline-primary" id = "add-task-btn"> Add Task</button>
+			</div>
+		</div>
+	</div>
+
+	<div class = "container">
+		<div class = "row"> 
+			<div class = "col" id = "tasks">
+				
+			</div>
+		</div>
+	</div>
+
+	<div class = "container">
+		<div class = "row"> 
+			<div class = "col" id= "completed">
+				<h1> Completed </h1>
+			</div>
+		</div>
+	</div>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+
+<script>
+	var $timer = $(".timer")
+	var intervalTimer;
+	var $selectedTask;
+
+	function format2Digits(int) {
+		if (int < 10) {
+			console.log("0".concat(int))
+		}
+		return int
+	} 
+
+	function countdown() {
+		var timer = $timer.html()
+		var min_sec = timer.split(":")
+		var min = parseInt(min_sec[0])
+		var sec = parseInt(min_sec[1])
+		sec -= 1
+		if (sec < 0) {
+			min -= 1
+			sec = 59
+		}
+
+		var formatString = format2Digits(min) + ":" + format2Digits(sec)
+		console.log(formatString)
+		$timer.html(formatString)
+		//recordTime($selectedTask)
+	}
+
+	$("#start-btn").click(() => {
+		console.log($selectedTask)
+		if (intervalTimer || !$selectedTask) return
+			intervalTimer = setInterval(countdown, 1000)
+	})
+	$("#stop-btn").click(()=> {
+		clearInterval(intervalTimer)
+		intervalTimer = undefined
+	})
+	$("#reset-btn").click(() => {
+		$timer.html("25:00")
+	})
+
+	$("#add-task-btn").click(() => {
+		var task = "<input onblur= \"blurHandler(this)\" style= \"display:block\" type = \"text\">" 
+		$("#tasks").append(task)
+	})
+
+	function blurHandler(el) {
+		if ($(el).val().length > 0) {
+			$(el).replaceWith("<p class= \"task\" onclick = \"selectTask(this)\" >"  + $(el).val() + "<span class = \"timespent\">Time Spent: <span>0</span> </span> </p>" + "<span  onclick = \"completeTask(this)\" class = \"close\">x</span>")
+		}
+	}
+
+	function selectTask(el) {
+		if (intervalTimer) return
+
+		if ($selectedTask != null){
+			$selectedTask.removeClass("selected")
+		}
+
+		$(el).addClass("selected")
+		$selectedTask = $(el)
+		
+	}
+
+	function completeTask(el) {
+		$taskClone = $(el).parent().clone()
+		if ($taskClone.hasClass("selected")) $selectedTask = null
+		$taskClone.removeClass()
+		$taskClone.addClass("completed")
+		$taskClone.children("span").remove()
+		$(el).parent().remove()
+		$("#completed").append($taskClone)
+		$taskClone.prop("onclick", null).off("click")
+	}
+
+</script>
+</html>
