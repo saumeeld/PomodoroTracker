@@ -11,18 +11,30 @@
 </head>
 
 <body>
-	<div class="container">
-		<div class="row">
-			<div class="col text-center">
-				<h1 class = "timer">25:00</h1>
+	<div class= "header">
+		<div class="container">
+			<div class="row">
+				<div class="col text-center">
+					<div class="btn-group" role="group" aria-label="Timers">
+						<button type="button" class="btn btn-secondary" id = "pomodoro-btn">Pomodoro</button>
+						<button type="button" class="btn btn-secondary" id = "short-break-btn">Short Break</button>
+						<button type="button" class="btn btn-secondary" id = "long-break-btn">Long Break</button>
+					</div>
+				</div>
 			</div>
-		</div>
 
-		<div class="row">
-			<div class="col text-center">
-				<button type="button" class="btn btn-outline-success" id = "start-btn"> Start </button>
-				<button type="button" class="btn btn-outline-danger" id = "stop-btn"> Stop </button>
-				<button type="button" class="btn btn-outline-dark" id = "reset-btn"> Reset </button>
+			<div class="row">
+				<div class="col text-center">
+					<h1 class = "timer">25:00</h1>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col text-center">
+					<button type="button" class="btn btn-outline-success" id = "start-btn"> Start </button>
+					<button type="button" class="btn btn-outline-danger" id = "stop-btn"> Stop </button>
+					<button type="button" class="btn btn-outline-dark" id = "reset-btn"> Reset </button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -41,9 +53,33 @@
 			<div class = "col text-center">
 				<table id = "tasks">
 					<tr>
-						<td id = "task-options-col"></td>
-						<th id = "task-col">Task</th>
-						<th id = "timespent-col">Time Spent</th>
+						<td class = "task-options-col"></td>
+						<th class = "task-col">Task</th>
+						<th class = "timespent-col">Time Spent</th>
+					</tr>
+				</table>
+			</div>
+			
+		</div>
+	</div>
+	
+
+	<div class = "container">
+		<div class = "row"> 
+			<div class = "col">
+				<h1> Completed </h1>
+			</div>
+		</div>
+	</div>
+
+	<div class = "container">
+		<div class = "row"> 
+			<div class = "col text-center">
+				<table id= "completed">
+					<tr>
+						<td class = "task-options-col"></td>
+						<th class = "task-col">Task</th>
+						<th class = "timespent-col">Time Spent</th>
 					</tr>
 				</table>
 			</div>
@@ -51,13 +87,6 @@
 		</div>
 	</div>
 
-	<div class = "container">
-		<div class = "row"> 
-			<div class = "col" id= "completed">
-				<h1> Completed </h1>
-			</div>
-		</div>
-	</div>
 
 </body>
 <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -65,19 +94,37 @@
 <script>
 	//Constants
 	var pomodoro = "25:00"
-	var shortBreakTime = "5:00"
+	var shortBreakTime = "05:00"
 	var longBreakTime = "20:00"
 
 	//global vars
+	var current = "pomodoro"
+	var timers = {
+		pomodoro: pomodoro,
+		shortbreak: shortBreakTime,
+		longbreak: longBreakTime
+	}
 	var $timer = $(".timer")
 	var intervalTimer;
-	var $selectedTask = null;
+	var $selectedTask = null
 
+	$("#pomodoro-btn").click(() => {
+		$timer.html(pomodoro)
+		current = "pomodoro"
+	})
+	$("#short-break-btn").click(() => {
+		$timer.html(shortBreakTime)
+		current = "shortbreak"
+	})
+	$("#long-break-btn").click(() => {
+		$timer.html(longBreakTime)
+		current = "longbreak"
+	})
 
 	$("#start-btn").click(() => {
-		console.log($selectedTask)
-		if (intervalTimer || !$selectedTask) return
-			intervalTimer = setInterval(countdown, 1000)
+		if (intervalTimer || (current==="pomodoro" && !$selectedTask)) return
+			console.log ($selectedTask)
+		intervalTimer = setInterval(countdown, 1000)
 	})
 
 	$("#stop-btn").click(()=> {
@@ -86,15 +133,17 @@
 	})
 
 	$("#reset-btn").click(() => {
-		$timer.html(pomodoro)
+		$timer.html(timers[current])
+		clearInterval(intervalTimer)
+		intervalTimer = null
 	})
 
 	$("#add-task-btn").click(() => {
 		if ($(".new-task-input").length) {return;}
 		var newTaskInput = "<input class = \"new-task-input\" onblur= \"blurHandler(this)\" type = \"text\">" 
-		$newTask = $("<tr> <td>" + newTaskInput + "</td> <td>00:00</td> </tr> ")
-		$delButton = $("<button></button>").html("&#10006").attr("onclick", "deleteTask(this)")
-		$completeButton = $("<button></button>").html("&#10004").attr("onclick", "completeTask(this)")
+		$newTask = $("<tr> <td>" + newTaskInput + "</td> <td class = \"timespent\">00:00</td> </tr> ")
+		$delButton = $("<button></button>").html("&#10006").attr("onclick", "event.stopPropagation(); deleteTask(this)")
+		$completeButton = $("<button></button>").html("&#10004").attr("onclick", "event.stopPropagation(); completeTask(this)")
 		$editCol = $("<td></td>").append($delButton).append($completeButton)
 		$newTask.prepend($editCol)
 		$("#tasks").append($newTask)
@@ -118,11 +167,14 @@
 
 		var formatString = format2Digits(min) + ":" + format2Digits(sec)
 		$timer.html(formatString)
-		updateTime($selectedTask)
+		if (current === "pomodoro") {
+			updateTime($selectedTask)
+		}
+		
 	}
 
 	function updateTime($selectedTask) {
-		$timeSpent = $selectedTask.children(".timespent-wrapper").children(".timespent")
+		$timeSpent = $selectedTask.children(".timespent")
 		timeSpent = $timeSpent.html()
 		min_sec = timeSpent.split(":")
 		min = parseInt(min_sec[0])
@@ -141,7 +193,7 @@
 	}
 
 	function selectTask(el) {
-		if (intervalTimer) {return}
+		if (intervalTimer || current !== "pomodoro") {return}
 
 			if ($selectedTask != null){
 				$selectedTask.removeClass("selected")
@@ -149,35 +201,41 @@
 
 			$(el).addClass("selected")
 			$selectedTask = $(el)
-
-	}
-
-	function deleteTask(el) {
-		$(el).parent().parent().remove()
-	}
-
-	function completeTask(el) {
-		task = $(el).parent().html()
-		$completedTask = $("<p>").html(task)
-		$completedTask.children(".close").remove()
-		$(el).parent().remove()
-		$("#completed").append($completedTask)
-	}
-
-
-	function formatTime(mins, secs) {
-		mins_carry = Math.floor(secs/60)
-		secs_remaining = secs % 60
-		mins += mins_carry
-		return format2Digits(mins) + ":" + format2Digits(secs) 
-	}
-
-	function format2Digits(int) {
-		if (int < 10) {
-			return "0".concat(int)
 		}
-		return int
-	} 
 
-</script>
+		function deleteTask(el) {
+			$(el).parent().parent().remove()
+		}
+
+		function completeTask(el) {
+			$task = $(el).parent().parent()
+			$completedTask = $task.clone()
+			if ($completedTask.hasClass("selected")) {
+				$completedTask.removeClass("selected")
+				$selectedTask = null
+				console.log("here")
+				console.log($selectedTask)
+			}
+			$completedTask.find("td").eq(0).children().remove()
+			$completedTask.prop("onclick", null)
+			$task.remove()
+			$("#completed").append($completedTask)
+		}
+
+
+		function formatTime(mins, secs) {
+			mins_carry = Math.floor(secs/60)
+			secs_remaining = secs % 60
+			mins += mins_carry
+			return format2Digits(mins) + ":" + format2Digits(secs) 
+		}
+
+		function format2Digits(int) {
+			if (int < 10) {
+				return "0".concat(int)
+			}
+			return int
+		} 
+
+	</script>
 	</html>
