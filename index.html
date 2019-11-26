@@ -38,12 +38,16 @@
 
 	<div class = "container">
 		<div class = "row"> 
-			<table class = "col text-center" id = "tasks">
-				<tr>
-					<th>Task</th>
-					<th>Time Spent</th>
-				</tr>
-			</table>
+			<div class = "col text-center">
+				<table id = "tasks">
+					<tr>
+						<td id = "task-options-col"></td>
+						<th id = "task-col">Task</th>
+						<th id = "timespent-col">Time Spent</th>
+					</tr>
+				</table>
+			</div>
+			
 		</div>
 	</div>
 
@@ -86,13 +90,18 @@
 	})
 
 	$("#add-task-btn").click(() => {
-		if ($(".new-task-input").length) return
-			var newTask = "<input class = \"new-task-input\" onblur= \"blurHandler(this)\" type = \"text\">" 
-		$("#tasks").append(newTask)
+		if ($(".new-task-input").length) {return;}
+		var newTaskInput = "<input class = \"new-task-input\" onblur= \"blurHandler(this)\" type = \"text\">" 
+		$newTask = $("<tr> <td>" + newTaskInput + "</td> <td>00:00</td> </tr> ")
+		$delButton = $("<button></button>").html("&#10006").attr("onclick", "deleteTask(this)")
+		$completeButton = $("<button></button>").html("&#10004").attr("onclick", "completeTask(this)")
+		$editCol = $("<td></td>").append($delButton).append($completeButton)
+		$newTask.prepend($editCol)
+		$("#tasks").append($newTask)
 		$(".new-task-input").on('keyup', function (e) {
-			if (e.keyCode === 13) {
-        		blurHandler(e.target)
-    		}
+			if (e.keyCode === 13) { //Enter
+				blurHandler(e.target)
+			}
 		});
 	})
 
@@ -108,7 +117,6 @@
 		}
 
 		var formatString = format2Digits(min) + ":" + format2Digits(sec)
-		console.log(formatString)
 		$timer.html(formatString)
 		updateTime($selectedTask)
 	}
@@ -120,55 +128,56 @@
 		min = parseInt(min_sec[0])
 		sec = parseInt(min_sec[1])
 		sec += 1
-		console.log(timeSpent)
 		$timeSpent.html(formatTime(min, sec))
-		console.log($timeSpent.html())
 
 	}
-
-	//"<p class= \"task\" onclick = \"selectTask(this)\" >"  + $(el).val() + "<span class = \"timespent-wrapper\">Time Spent: <span class= \"timespent\">00:00</span> </span> <span  onclick = \"completeTask(this)\" class = \"close\">x</span> </p>"
 
 	function blurHandler(el) {
 		if ($(el).val().length > 0) {
-			$(el).replaceWith("<tr> <td>" + $(el).val() + "</td> <td> 00: 00 </td> </tr>")
+			$(el).prop("onblur", null) // To prevent error from refiring when element is removed
+			$(el).parent().parent().attr('onclick','selectTask(this)');
+			$(el).replaceWith("<p class = \"task\"> " + $(el).val() + "</p>")
 		}
 	}
 
-		function selectTask(el) {
-			console.log("HI")
-			if (intervalTimer) return
+	function selectTask(el) {
+		if (intervalTimer) {return}
 
-				if ($selectedTask != null){
-					$selectedTask.removeClass("selected")
-				}
-
-				$(el).addClass("selected")
-				$selectedTask = $(el)
-
-		}
-
-		function completeTask(el) {
-			task = $(el).parent().html()
-			$completedTask = $("<p>").html(task)
-			$completedTask.children(".close").remove()
-			$(el).parent().remove()
-			$("#completed").append($completedTask)
-		}
-
-
-		function formatTime(mins, secs) {
-			mins_carry = Math.floor(secs/60)
-			secs_remaining = secs % 60
-			mins += mins_carry
-			return format2Digits(mins) + ":" + format2Digits(secs) 
-		}
-
-		function format2Digits(int) {
-			if (int < 10) {
-				return "0".concat(int)
+			if ($selectedTask != null){
+				$selectedTask.removeClass("selected")
 			}
-			return int
-		} 
 
-	</script>
+			$(el).addClass("selected")
+			$selectedTask = $(el)
+
+	}
+
+	function deleteTask(el) {
+		$(el).parent().parent().remove()
+	}
+
+	function completeTask(el) {
+		task = $(el).parent().html()
+		$completedTask = $("<p>").html(task)
+		$completedTask.children(".close").remove()
+		$(el).parent().remove()
+		$("#completed").append($completedTask)
+	}
+
+
+	function formatTime(mins, secs) {
+		mins_carry = Math.floor(secs/60)
+		secs_remaining = secs % 60
+		mins += mins_carry
+		return format2Digits(mins) + ":" + format2Digits(secs) 
+	}
+
+	function format2Digits(int) {
+		if (int < 10) {
+			return "0".concat(int)
+		}
+		return int
+	} 
+
+</script>
 	</html>

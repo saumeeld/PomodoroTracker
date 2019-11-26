@@ -3,11 +3,25 @@
 	margin-bottom: 1em;
 }
 
-.tasks {
+#tasks {
+	width: 80%;
 	table-layout: fixed;
 }
 
+#task-options-col {
+	width: 10%;
+}
+
+#task-col {
+	width: 45%;
+}
+
+#timespent-col {
+	width: 45%;
+}
+
 .task {
+	margin-bottom: 0;
 }
 
 .timespent-wrapper {
@@ -31,8 +45,6 @@
 	border: 1px solid #ccc;
 	outline: none;
 	width: 20em;
-	display: block;
-	margin-bottom: .25em;
 }
 
 .tasks-header {
@@ -46,7 +58,12 @@
 	display: inline;
 }
 
-.selected {
+.selected td:nth-child(2) {
+	background: #888;
+ 	color: #fff;
+}
+
+.selected td:nth-child(3) {
 	background: #888;
  	color: #fff;
 }
