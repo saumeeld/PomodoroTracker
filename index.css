@@ -1,8 +1,21 @@
+body {
+	/*background-color: #131339;*/
+	/*color: white;*/
+}
+
 .header {
-	width: 100%;
-	/*background-color: #99ccff;*/
+	height:5em;
 	padding-top: .5em;
 	padding-bottom: .5em;
+}
+
+#title {
+	background-color: #262673;
+	height: 100%;
+	width: 30%;
+	text-align: center;
+	color: white;
+	margin: 0 auto;
 }
 
 .row {
@@ -10,14 +23,28 @@
 	margin-bottom: 1em;
 }
 
+.task-sec {
+	margin-bottom: 10em;
+}
+
 #tasks {
 	width: 80%;
 	table-layout: fixed;
+	margin: 0 auto;
 }
 
 #completed {
 	width: 80%;
 	table-layout: fixed;
+	margin: 0 auto;
+}
+
+tr {
+	text-align: center;
+}
+
+.spacer {
+	height: .5em;
 }
 
 .task-options-col {
